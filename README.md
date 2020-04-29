@@ -1,6 +1,7 @@
 # Fosmids
 ## Requirements
 1. Python version 2
+2. BLAST
 ## Code to merge the fosmids
 ```
 # fosmids.fasta has all the fosmids sequence to be merged
