@@ -14,8 +14,9 @@ from Bio.SeqRecord import SeqRecord
 #     run_blast(locus_fasta,locus_fasta,blast_output)
 
 def not_overlapping(alignment):
-    if not (int(alignment.qstart) < 100 and (int(alignment.slen) - int(alignment.send)) < 100):
-        if not (int(alignment.sstart) < 100 and (int(alignment.qlen) - int(alignment.qend)) < 100):
+    flank = 500
+    if not (int(alignment.qstart) < flank and (int(alignment.slen) - int(alignment.send)) < flank):
+        if not (int(alignment.sstart) < flank and (int(alignment.qlen) - int(alignment.qend)) < flank):
             return True
     return False
    
@@ -124,6 +125,7 @@ def create_directed_graph(alignments,fosmids):
 
 def get_fosmid_coords(alignments,max_path):
     if len(max_path) == 1:
+        #return [[max_path[0],1,-1]]
         return [[max_path[0],1,-1]]
     coords = []
     i = 0
@@ -134,13 +136,37 @@ def get_fosmid_coords(alignments,max_path):
             if alignment.sseqid != end_fosmid:
                 continue
             merge_coords = [alignment.qseqid,1,int(alignment.qstart) - 1]
+            #merge_coords = [alignment.qseqid,1,int(alignment.qlen)]
             coords.append(merge_coords)
             i += 1
             if i == len(max_path) - 1:                
                 merge_coords = [alignment.sseqid,1,alignment.slen]
+                #merge_coords = [alignment.sseqid,alignment.send,alignment.slen]
                 coords.append(merge_coords)
     return coords
     
+def group_size_2_and_encaps(group,alignments):
+    if len(group) == 2:
+        for alignment in alignments:
+            if (alignment.qseqid == group[0] and alignment.sseqid == group[1]) or \
+               (alignment.qseqid == group[1] and alignment.sseqid == group[0]):
+                if completely_overlapping(alignment):
+                    return True
+    return False
+
+def get_larger_contig(group,alignments):
+    larger_contig = None
+    for alignment in alignments:
+        if (alignment.qseqid == group[0] and alignment.sseqid == group[1]) or \
+           (alignment.qseqid == group[1] and alignment.sseqid == group[0]):
+            if int(alignment.qlen) > int(alignment.slen):
+                larger_contig = alignment.qseqid
+            else:
+                larger_contig = alignment.sseqid
+            break
+    assert larger_contig != None
+    return larger_contig
+
 def group_merging_fosmids(alignments,fosmids_to_ignore,fosmid_names):
     groupings = {}
     groups = group_alignments(alignments,fosmids_to_ignore,fosmid_names)
@@ -156,6 +182,9 @@ def group_merging_fosmids(alignments,fosmids_to_ignore,fosmid_names):
                 if length > num_fosmids_in_max_path:
                     num_fosmids_in_max_path = length
                     max_path = all_paths[start][end]
+        if group_size_2_and_encaps(list(groups[group]),alignments):
+            max_path = None
+            groups[group] = [get_larger_contig(list(groups[group]),alignments)]
         if max_path == None:
             max_path = groups[group]
         fosmids_coordinates = get_fosmid_coords(alignments,max_path)
@@ -255,7 +284,11 @@ def write_sequences(infosmids_fasta,outfosmids_fasta,fosmids_coords_to_mergefn):
             end = int(line[3])
             if group not in outsequences:
                 outsequences[group] = []
-            outsequences[group].append(str(infasta[fosmid].seq[start:end]))
+            if start == 1 and end == -1:
+                seq = str(infasta[fosmid].seq[0:])
+            else:
+                seq = str(infasta[fosmid].seq[start:end])            
+            outsequences[group].append(seq)
     records = []
     for group in outsequences:
         sequence = "".join(outsequences[group])        
