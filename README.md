@@ -3,7 +3,7 @@
 1. Python version 2
 2. BLAST
 3. WhatsHap: Look at https://github.com/oscarlr/IGenotyper <br>
-4: BLASR
+4. BLASR
 
 ## Code to merge the fosmids
 ```
