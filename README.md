@@ -2,6 +2,8 @@
 ## Requirements
 1. Python version 2
 2. BLAST
+3. WhatsHap: Look at https://github.com/oscarlr/IGenotyper
+
 ## Code to merge the fosmids
 ```
 # fosmids.fasta has all the fosmids sequence to be merged
