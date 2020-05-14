@@ -42,3 +42,50 @@ python python/add_read_group.py \
 samtools index fosmids_to_ref_grouped.sorted.bam
 
 ```
+## Extracting phasing SNVs from 1KG
+```
+tmp=
+mkdir -p ${tmp}/get_1kg_snvs
+wget -O ${tmp}/get_1kg_snvs/ALL.chr14_GRCh38.genotypes.20170504.vcf.gz \
+  http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/supporting/GRCh38_positions/ALL.chr14_GRCh38.genotypes.20170504.vcf.gz
+vcftools \
+  --gzvcf /sc/hydra/scratch/rodrio10/projects/Human_IGH_1KG_fosmids/2020-03-31_fosmid_haplotypes/get_1kg_snvs/ALL.chr14_GRCh38.genotypes.20170504.vcf.gz \
+  --chr 14 \
+  --from-bp 105917017 \
+  --to-bp 107044718 \
+  --indv NA18507 \
+  --recode --recode-INFO-all --stdout \
+  | grep -v "0|0" | grep -v "1|1" | grep -v "./." | sed 's/^14/chr14/g' > ${tmp}/get_1kg_snvs/NA18507.vcf
+```
+
+## Rephasing SNVs with fosmids
+```
+tmp=
+mkdir -p ${tmp}/rephase_1kg_snvs
+ref=hg38.fa
+fosmids=fosmids_to_hg38.sorted.bam
+vcf=${tmp}/get_1kg_snvs/NA18507.vcf
+whatshap phase \
+    --sample NA18507 \
+    --reference ${ref} \
+    --ignore-read-groups \
+    --distrust-genotypes \
+    -o ${tmp}/snvs_in_hg38/snps_phased.vcf \
+    ${tmp}/snvs_in_hg38/snps.vcf \
+    ${vcf} \
+    ${fosmids}
+```
+
+## Phasing fosmids with rephased SNVs
+```
+tmp=
+mkdir -p ${tmp}/rephase_1kg_snvs_reads
+fosmids=fosmids_to_hg38.sorted.bam
+python python/eval_phase_het_snps.py \
+   ${tmp}/snvs_in_hg38/snps_phased.vcf \
+   ${fosmids} \
+   ${tmp}/rephase_1kg_snvs_reads/fosmids_to_hg38_phased.sorted.bam \
+   NA18507 > ${tmp}/rephase_1kg_snvs_reads/fosmids_to_hg38_phased_scores.bed
+samtools index ${tmp}/rephase_1kg_snvs_reads/fosmids_to_hg38_phased.sorted.bam
+
+```
