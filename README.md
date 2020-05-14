@@ -52,7 +52,7 @@ mkdir -p ${tmp}/get_1kg_snvs
 wget -O ${tmp}/get_1kg_snvs/ALL.chr14_GRCh38.genotypes.20170504.vcf.gz \
   http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/supporting/GRCh38_positions/ALL.chr14_GRCh38.genotypes.20170504.vcf.gz
 vcftools \
-  --gzvcf /sc/hydra/scratch/rodrio10/projects/Human_IGH_1KG_fosmids/2020-03-31_fosmid_haplotypes/get_1kg_snvs/ALL.chr14_GRCh38.genotypes.20170504.vcf.gz \
+  --gzvcf ${tmp}/get_1kg_snvs/ALL.chr14_GRCh38.genotypes.20170504.vcf.gz \
   --chr 14 \
   --from-bp 105917017 \
   --to-bp 107044718 \
