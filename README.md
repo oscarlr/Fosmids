@@ -2,7 +2,7 @@
 ## Requirements
 1. Python version 2
 2. BLAST
-3. WhatsHap: Look at https://github.com/oscarlr/IGenotyper
+3. WhatsHap: Look at https://github.com/oscarlr/IGenotyper <p>
 4: BLASR
 
 ## Code to merge the fosmids
