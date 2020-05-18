@@ -1,7 +1,7 @@
 # Fosmids
 ## Requirements
 1. Python version 2
-2. BLAST
+2. BLAST/2.7.1+
 3. WhatsHap: Look at https://github.com/oscarlr/IGenotyper <br>
 4. BLASR
 
