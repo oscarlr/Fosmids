@@ -45,6 +45,17 @@ python python/add_read_group.py \
 samtools index fosmids_to_ref_grouped.sorted.bam
 
 ```
+## Aligning merged fosmids to reference
+```
+# threads is the number of threads to use
+# this will create a file "merged_fosmids_to_ref.sorted.bam" containing the merged fosmids aligned to the reference
+sh bash/mapping_indel_penalize.sh \
+   merged_fosmids.fasta \
+   ref.fasta \
+   ${threads} \
+   merged_fosmids_to_ref \
+   1
+```
 ## Extracting phasing SNVs from 1KG
 ```
 tmp=
